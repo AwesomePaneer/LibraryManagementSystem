@@ -1,0 +1,23 @@
+{% extends 'library/base.html' %}
+{% block title %}Profile{% endblock %}
+
+{% block body %}
+
+<h2>Profile of {{user.username}}</h2>
+
+{% for request in request_list %}
+
+    <div>
+        {% if request.status == 0 %}
+            <span style = "color:black">{{request.book}} - Yet to be verified</span><br>
+        {% elif request.status == 1%}
+            <span style = "color:green">{{request.book}} - Accepted</span><br>
+        {% else %}
+            <span style = "color:red">{{request.book}} - Rejected</span><br>
+        {% endif %}
+            
+       </div>
+
+{% endfor %}
+
+{% endblock %}

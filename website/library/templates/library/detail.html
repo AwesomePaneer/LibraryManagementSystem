@@ -1,0 +1,25 @@
+{% extends 'library/base.html' %}
+{% block title %}{{book.title}}{% endblock %}
+
+{% block body %}
+    <img src = "{{book.cover.url}}" style="width:100px;" >
+    <h1>{{book.title}}</h1>
+    <h2>Author - {{book.author}}</h2>
+    <div>
+        Publisher - {{book.publisher}} <br>
+        Genre - {{book.genre}} <br>
+        Summary - {{book.summary}} <br>
+        ISBN - {{book.ISBN}} <br>
+        Location in Library - {{book.location}} <br>
+        {% if book.available %}
+            <span style="color:green">Currently available</span>
+        {% else %}
+            <span style="color:red">Currently unavailable</span>
+        {% endif %}
+    </div>
+
+    {% if book.available == True %} 
+        <a href="{% url 'library:request_book' book.id %}">Request</a>
+    {% endif %}
+
+{% endblock %}

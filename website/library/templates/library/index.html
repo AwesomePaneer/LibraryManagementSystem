@@ -1,0 +1,23 @@
+{% extends 'library/base.html' %}
+{% block title %}HomePage{% endblock %}
+
+{% block body %}
+    <div>
+        <form action="" method="post">
+            {% csrf_token %}
+            <input type="text" name="search" placeholder="Search">
+            <button style="float:inline-end" type="submit">Go!</button>
+        </form>
+    </div>
+    {% for book in books %}
+        <a href="{% url 'library:detail' book.id %}">
+            {{ book.title }}
+        </a><br>
+    {% endfor %}
+
+    <div>
+        {% for message in messages %}
+            <span style="color:red">{{message}}</span>
+        {% endfor %}
+    </div>
+{% endblock %}

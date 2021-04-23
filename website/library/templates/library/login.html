@@ -1,0 +1,23 @@
+{% extends 'library/base.html' %}
+{% block title %}Login{% endblock %}
+{% block body %}
+
+
+<form action="" method="post">
+    {% csrf_token %}
+    <input type='text' name='username' placeholder='Username'><br>
+    <input type='password' name='password' placeholder='Password'><br>
+    <input type="Submit">
+
+</form>  
+
+<div>
+    {% for message in messages %}
+    <span style="color:red">{{message}}</span>
+    {% endfor %}
+</div>
+
+<div>
+    Don't have an account? <a href="{% url 'library:register' %}">Click here</a> to sign up
+</div>
+{% endblock %}
