@@ -5,6 +5,7 @@ from django.views import generic
 from django.views.generic import View
 from .models import Book, Request
 from django.contrib.auth.models import User, auth, Group
+from datetime import date,datetime, timedelta
 
 def index(request):
     book_list = []
@@ -35,11 +36,20 @@ def detail(request, book_id):
 
 def request_book(request, book_id):
     book = get_object_or_404(Book, pk=book_id)
+    
     if request.method == 'POST':
         if not request.user.is_authenticated:
             messages.info(request, "You need to log in to make a request")
             return redirect('library:login')
-        elif book.available == False:
+        
+        old_requests = Request.objects.filter(user=request.user,book=book)  #check if user has another request with same book
+        for req in old_requests:
+            if req.is_ongoing() and req.status!=2:
+                messages.info(request,'You have ongoing requests of same book')
+                return render(request, 'library/request.html', {'book':book})
+        
+        
+        if book.available == False:
             #return render(request, 'library/request.html', {'book':book,'messages':['Book not available']})
             messages.info(request, "Book not available")
             return render(request, 'library/request.html', {'book':book})
@@ -49,15 +59,34 @@ def request_book(request, book_id):
             return render(request, 'library/request.html', {'book':book})
         else:
             time = request.POST['time']
-            if time == '' or not type(time)==int:
+            if time == '' or not time.isnumeric():
                 messages.info(request, "Input not a valid number")
                 return render(request, 'library/request.html', {'book':book})
+            start_date = date.today()
+            end_date = date.today() + timedelta(days=int(time))
             user = request.user
-            request_book_entry = Request(user=user,time=time,book=book)
+            request_book_entry = Request(user=user,book=book,start_date=start_date,end_date=end_date)
             request_book_entry.save()
             return redirect('library:index')
     else:
         return render(request, 'library/request.html', {'book':book})
+
+def renew(request, book_request_id):
+    book_request = get_object_or_404(Request, pk=book_request_id)
+    book = book_request.book
+    if not request.user == book_request.user:
+        return HttpResponse("<h3>Unauthroized Access</h3>")
+
+    if request.method=='POST':
+        time = request.POST['time']
+        book_request.end_date = book_request.end_date + timedelta(days=int(time))
+        book_request.status = 0
+        book_request.save()
+        messages.info(request, "Renew requested successfully")
+        return redirect('library:user_profile')
+    else:
+        return render(request, 'library/renew.html', {'book':book})
+
 
 def register(request):
     if request.method == 'POST':
@@ -100,7 +129,6 @@ def login(request):
 def logout(request):
     auth.logout(request)
     return redirect('library:index')
-
 
 
 # class RegisterUserView(View):

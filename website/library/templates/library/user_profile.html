@@ -4,20 +4,34 @@
 {% block body %}
 
 <h2>Profile of {{user.username}}</h2>
+<h3>Ongoing requests:</h3>
 
 {% for request in request_list %}
 
     <div>
-        {% if request.status == 0 %}
-            <span style = "color:black">{{request.book}} - Yet to be verified</span><br>
-        {% elif request.status == 1%}
-            <span style = "color:green">{{request.book}} - Accepted</span><br>
-        {% else %}
-            <span style = "color:red">{{request.book}} - Rejected</span><br>
+        {% if request.is_ongoing %}
+            {% if request.status == 0 %}
+                <span style = "color:black">{{request.book}} - Yet to be verified.</span><br>
+            {% elif request.status == 1%}
+                <span style = "color:green">{{request.book}} - Accepted</span>
+                {{request.number_of_days}} day(s) Remaining. 
+                {% if request.is_deadline_close %}
+                    <a href="{% url 'library:renew' request.id%}">Renew</a><br>
+                {% endif %}
+            {% else %}
+                <span style = "color:red">{{request.book}} - Rejected</span><br>
+            {% endif %}         
+
         {% endif %}
             
        </div>
 
 {% endfor %}
+
+<div>
+    {% for message in messages %}
+    <span style="color:green">{{message}}</span>
+    {% endfor %}
+</div>
 
 {% endblock %}
